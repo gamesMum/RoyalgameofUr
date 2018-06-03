@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView whiteStone;
     private ImageView dice;
     private int diceValue;
-    private RelativeLayout.LayoutParams  layoutParams;
+    private RelativeLayout.LayoutParams layoutParams;
 
     private int blackDiceResult;
     private int whiteDiceResult;
@@ -41,29 +41,27 @@ public class MainActivity extends AppCompatActivity {
         whiteLayout = (LinearLayout) findViewById( R.id.white_layout );
 
         //draw the dice
-        dice  = new ImageView(this);
+        dice = new ImageView( this );
         dice.setImageResource( R.drawable.dice_num_1 );
-        layoutParams = new RelativeLayout.LayoutParams
-                ( RelativeLayout.LayoutParams.WRAP_CONTENT,
-                        RelativeLayout.LayoutParams.WRAP_CONTENT); // or wrap_content
+        layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
 
         drawInitboard();
         //find the views in xml file
-        urBoard  = findViewById( R.id.main_board );
+        urBoard = findViewById( R.id.main_board );
 
     }
 
     //draw the 7 black and white stones
-    private void drawInitboard(){
+    private void drawInitboard() {
 
         //set thr image at the bottom right of the relative layout
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        layoutParams.addRule( RelativeLayout.ALIGN_PARENT_BOTTOM );
         layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
         //-------------------------------------------------------------------------------
 
         mainLayout.addView( dice, layoutParams );
 
-        for(int i=0; i<=6; i++) {
+        for (int i = 0; i <= 6; i++) {
             blackStone = new ImageView( this );
             whiteStone = new ImageView( this );
 
@@ -84,74 +82,65 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //store the value
-                diceValue =  rollDice();
+                diceValue = rollDice();
 
                 //Make the move for the player
-                //remove this later++++create delay to mimik player move
-                Handler myHandler = new Handler();
-                Runnable mMyRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        //do this when the delay is over
-                        //get the location of the dice
-                        int[] outLocation = new int[2];
-                        dice.getLocationOnScreen(outLocation);
-                        int x = outLocation[0];
-                        //check if the dice is on the left or the right of the screen
-                        if(x == 488)//the dice is on the right
-                        {
-                            //transfere it to the right
-                            layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
-                            layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
-                            mainLayout.removeView( dice );
-                            mainLayout.addView( dice, layoutParams );
-
-                        }
-                        else //the dice is on the left
-                        {
-                            layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT);
-                            layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
-                            mainLayout.removeView( dice );
-                            mainLayout.addView( dice, layoutParams );
-                        }
 
 
+                //get the location of the dice
+                int[] outLocation = new int[2];
+                dice.getLocationOnScreen( outLocation );
+                int x = outLocation[0];
+                //check if the dice is on the left or the right of the screen
+                if (x == 488)//the dice is on the right
+                {
+                    //transfere it to the right
+                    layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+                    layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
+                    mainLayout.removeView( dice );
+                    mainLayout.addView( dice, layoutParams );
 
-                    }
-                };
-                //start the delay
-                myHandler.postDelayed(mMyRunnable, 5000);
-                //______________________________
+                } else //the dice is on the left
+                {
+                    layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
+                    layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+                    mainLayout.removeView( dice );
+                    mainLayout.addView( dice, layoutParams );
+                }
+
 
             }
+
         } );
 
 
     }
 
-    private int rollDice()
-    {
-        Random rand = new Random(  );
-        int num = rand.nextInt(5);
-        Log.v(CONTEXT, "The random number is " + num);
+    private int rollDice() {
+        Random rand = new Random();
+        int num = rand.nextInt( 5 );
+        Log.v( CONTEXT, "The random number is " + num );
 
-        switch(num)
-        {
-            case 1: dice.setImageResource( R.drawable.dice_num_1 );
-            break;
-            case 2: dice.setImageResource( R.drawable.dice_num_2 );
-            break;
-            case 3: dice.setImageResource( R.drawable.dice_num_3 );
-            break;
-            case 4: dice.setImageResource( R.drawable.dice_num_4 );
-            break;
-            case 0: dice.setImageResource( R.drawable.dice_num_0 );
+        switch (num) {
+            case 1:
+                dice.setImageResource( R.drawable.dice_num_1 );
+                break;
+            case 2:
+                dice.setImageResource( R.drawable.dice_num_2 );
+                break;
+            case 3:
+                dice.setImageResource( R.drawable.dice_num_3 );
+                break;
+            case 4:
+                dice.setImageResource( R.drawable.dice_num_4 );
+                break;
+            case 0:
+                dice.setImageResource( R.drawable.dice_num_0 );
 
         }
         return num;
 
     }
-
 
 
 }
