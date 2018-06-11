@@ -73,10 +73,9 @@ public class MainActivity extends AppCompatActivity {
                     layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
                     mainLayout.removeView( dice );
                     mainLayout.addView( dice, layoutParams );
-                    //the player is done with his move
-                    busy = false;
-                    Toast.makeText( getApplicationContext(), "CLICK TO ROLL THE DICE!",
-                            Toast.LENGTH_SHORT ).show();
+
+                    //roll the dice for the other player
+                    diceValue = rollDice();
 
                 }
                 else {
@@ -108,10 +107,8 @@ public class MainActivity extends AppCompatActivity {
                     layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
                     mainLayout.removeView( dice );
                     mainLayout.addView( dice, layoutParams );
-                    //the player is done with his move
-                    busy = false;
-                    Toast.makeText( getApplicationContext(), "CLICK TO ROLL THE DICE!",
-                            Toast.LENGTH_SHORT ).show();
+                   //roll the dice for the other player
+                   diceValue = rollDice();
 
 
                 }
@@ -134,27 +131,6 @@ public class MainActivity extends AppCompatActivity {
         //set up the board on the screen
         drawBoard();
 
-
-        //roll the dice once the player touches the dice
-        dice.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(busy)
-                {
-                    Toast.makeText( getApplicationContext(), "Make your move!",
-                            Toast.LENGTH_SHORT ).show();
-                }
-                //else roll the dice
-                else {
-                    //store the value
-                    diceValue = rollDice();
-                    //this to disable the dice when the player starts
-                    //his/her turn
-                    busy = true;
-                }
-
-            }
-        } );
 
 
         //find the views in xml file
