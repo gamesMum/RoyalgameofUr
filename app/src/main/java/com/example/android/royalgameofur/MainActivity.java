@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -31,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean busy;
     private final boolean YOU_WON = true;
     private RelativeLayout.LayoutParams layoutParams;
-
+    private ArrayList<String> whiteRout;
+    private ArrayList<String> blackRout;
+    private ArrayList<String> busyCells;
     private View.OnClickListener whiteStoneClickListener;
     private View.OnClickListener blackStoneClickListener;
 
@@ -51,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
 
-        busy = false;
+        //Store the white rout
+        whiteRout = new ArrayList<String>(  );
+        busyCells = new ArrayList<String>(  );
+
         //define the white and black stones onClickListener
         //This will be called for each player in thier turn and check for available moves
         blackStoneClickListener = new View.OnClickListener() {
@@ -66,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
                 //the dice is on the left
                 if (x != 488)//the dice is on the left (black)
                 {
-                    //make the move
+                    //Check available moves and make the move
+                    //calculate the position on board
+                    //get clicked stone
 
                     //swipe the dice to the right (white)
                     layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
@@ -100,7 +108,25 @@ public class MainActivity extends AppCompatActivity {
                 if (x == 488)//the dice is on the right(white)
                 {
 
-                    //make the move
+                    //Check available moves and make the move
+                    //get the cell the dice value represents
+                    if(diceValue > 0) {
+                        //check if cell is free (not busy)
+                        if(!(cellIsBusy(whiteRout.get( diceValue - 1 ))));
+                        {
+                            //1: make the move
+                            //2: set the cell as busy
+                            busyCells.add(whiteRout.get( diceValue - 1 ));
+                            //3: move the stone to that cell
+                        }
+                        Log.v( CONTEXT, "the cell id is: " + whiteRout.get( diceValue - 1 ) );
+                        //mark this cell as busy so hte other player won't ne able to move there
+
+                        //add delay to get player attention
+                    }
+                    else
+                        Toast.makeText( getApplicationContext(), "Sorry, you've got 0!!",
+                                Toast.LENGTH_SHORT ).show();
                     //...............
                     //swipe the dice to the left (black)
                     layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
@@ -123,10 +149,20 @@ public class MainActivity extends AppCompatActivity {
                 //2: check available moves for that player5
                 //3: perform the move
                 //is the game finished yet
-                Log.v( CONTEXT, "YOU CLICKED ME!!...I'm " + v.getId() );
+               // Log.v( CONTEXT, "YOU CLICKED ME!!...I'm " + v.getResources().getResourceName( v.getId() ) );
+                switch (v.getId()) {
+                    case R.id.white_0:
+                        Toast.makeText(MainActivity.this, "white_0", Toast.LENGTH_LONG).show();
+                        break;
+                    case R.id.white_1:
+                        Toast.makeText(MainActivity.this, "white_1", Toast.LENGTH_LONG).show();
+                        break;
+                }
 
             }
         };
+
+
 
         //set up the board on the screen
         drawBoard();
@@ -136,6 +172,20 @@ public class MainActivity extends AppCompatActivity {
         //find the views in xml file
         //boardCells = new ImageView(  )
 
+    }
+
+    //check busyCells
+    public boolean cellIsBusy(String cellID)
+    {
+        //check if the cell is busy
+        for(String cell : busyCells)
+        {
+            if(cellID == cell)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     //arrange the board elements on the screen
@@ -155,6 +205,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Draw the cells
         drawBoardCells();
+
+        //rol dice for the first time
+        diceValue = rollDice();
+        Log.v(CONTEXT, "dice value for the first time is"+ diceValue );
 
     }
 
@@ -176,8 +230,39 @@ public class MainActivity extends AppCompatActivity {
                 String imageIdUrl = "cell_" + i + "_" + j;
                 int imageId = getResources().getIdentifier( imageIdUrl, "id", getPackageName() );
                 boardCell.setId( imageId );
+                //store white rout in an array
 
-                Log.v( CONTEXT, "Image IDs: " + boardCell.getId() );
+                whiteRout.add("cell_3_2");
+                whiteRout.add("cell_2_2");
+                whiteRout.add("cell_1_2");
+                whiteRout.add("cell_0_2");
+                whiteRout.add("cell_0_1");
+                whiteRout.add("cell_1_1");
+                whiteRout.add("cell_2_1");
+                whiteRout.add("cell_3_1");
+                whiteRout.add("cell_4_1");
+                whiteRout.add("cell_5_1");
+                whiteRout.add("cell_6_1");
+                whiteRout.add("cell_7_1");
+                whiteRout.add("cell_7_2");
+                whiteRout.add("cell_6_2");
+
+                //store black rout in an array
+
+                blackRout.add("cell_3_0");
+                blackRout.add("cell_2_0");
+                blackRout.add("cell_1_0");
+                blackRout.add("cell_0_0");
+                blackRout.add("cell_0_1");
+                blackRout.add("cell_1_1");
+                blackRout.add("cell_2_1");
+                blackRout.add("cell_3_1");
+                blackRout.add("cell_4_1");
+                blackRout.add("cell_5_1");
+                blackRout.add("cell_6_1");
+                blackRout.add("cell_7_1");
+                blackRout.add("cell_7_0");
+                blackRout.add("cell_6_0");
 
             }
         }
@@ -229,8 +314,6 @@ public class MainActivity extends AppCompatActivity {
     private int rollDice() {
         Random rand = new Random();
         int num = rand.nextInt( 5 );
-        Log.v( CONTEXT, "The random number is " + num );
-
         switch (num) {
             case 1:
                 dice.setImageResource( R.drawable.dice_num_1 );
