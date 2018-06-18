@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Store the white rout
         whiteRout = new ArrayList<String>(  );
+        blackRout = new ArrayList<String>(  );
         busyCells = new ArrayList<String>(  );
 
         //define the white and black stones onClickListener
@@ -69,28 +70,48 @@ public class MainActivity extends AppCompatActivity {
                 dice.getLocationOnScreen( outLocation );
                 int x = outLocation[0];
                 //check if the dice is on the left or the right of the screen
-                //the dice is on the left
-                if (x != 488)//the dice is on the left (black)
+                if (x != 488)//the dice is on the left(black)
                 {
-                    //Check available moves and make the move
-                    //calculate the position on board
-                    //get clicked stone
 
+                    //Check available moves and make the move
+                    //get the cell the dice value represents
+                    if(diceValue > 0) {
+                        //check if cell is free (not busy)
+                        if(!(cellIsBusy(blackRout.get( diceValue - 1 ))));
+                        {
+                            //1: make the move
+                            //2: set the cell as busy
+                            busyCells.add(blackRout.get( diceValue - 1 ));
+                            //3: move the stone to that cell
+                        }
+                        Log.v( CONTEXT, "the cell id is: " + blackRout.get( diceValue - 1 ) );
+                        //mark this cell as busy so hte other player won't ne able to move there
+
+                        //add delay to get player attention
+                    }else
+                        Log.v( CONTEXT, "You got 0...try again next time!!" );
+
+                    //...............
                     //swipe the dice to the right (white)
                     layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
                     layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
                     mainLayout.removeView( dice );
                     mainLayout.addView( dice, layoutParams );
-
                     //roll the dice for the other player
                     diceValue = rollDice();
 
                 }
-                else {
+                else
+                {
+                    //the dice is on the left
                     Toast.makeText( getApplicationContext(), "Wait for your turn!",
                             Toast.LENGTH_SHORT ).show();
                 }
 
+
+                //2: check available moves for that player5
+                //3: perform the move
+                //is the game finished yet
 
             }
         };
@@ -123,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
                         //mark this cell as busy so hte other player won't ne able to move there
 
                         //add delay to get player attention
-                    }
-                    else
-                        Toast.makeText( getApplicationContext(), "Sorry, you've got 0!!",
-                                Toast.LENGTH_SHORT ).show();
+                    }else
+
+                    Log.v( CONTEXT, "You got 0!!" );
+
                     //...............
                     //swipe the dice to the left (black)
                     layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
@@ -135,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                     mainLayout.addView( dice, layoutParams );
                    //roll the dice for the other player
                    diceValue = rollDice();
-
 
                 }
                 else
@@ -150,15 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 //3: perform the move
                 //is the game finished yet
                // Log.v( CONTEXT, "YOU CLICKED ME!!...I'm " + v.getResources().getResourceName( v.getId() ) );
-                switch (v.getId()) {
-                    case R.id.white_0:
-                        Toast.makeText(MainActivity.this, "white_0", Toast.LENGTH_LONG).show();
-                        break;
-                    case R.id.white_1:
-                        Toast.makeText(MainActivity.this, "white_1", Toast.LENGTH_LONG).show();
-                        break;
-                }
-
             }
         };
 
