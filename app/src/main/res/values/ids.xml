@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="cell_0_0" type="id"/>
+    <item name="cell_0_1" type="id"/>
+    <item name="cell_0_2" type="id"/>
+    <item name="cell_1_0" type="id"/>
+    <item name="cell_1_1" type="id"/>
+    <item name="cell_1_2" type="id"/>
+    <item name="cell_2_0" type="id"/>
+    <item name="cell_2_1" type="id"/>
+    <item name="cell_2_2" type="id"/>
+    <item name="cell_3_0" type="id"/>
+    <item name="cell_3_1" type="id"/>
+    <item name="cell_3_2" type="id"/>
+    <item name="cell_4_0" type="id"/>
+    <item name="cell_4_1" type="id"/>
+    <item name="cell_4_2" type="id"/>
+    <item name="cell_5_0" type="id"/>
+    <item name="cell_5_1" type="id"/>
+    <item name="cell_5_2" type="id"/>
+    <item name="cell_6_0" type="id"/>
+    <item name="cell_6_1" type="id"/>
+    <item name="cell_6_2" type="id"/>
+    <item name="cell_7_0" type="id"/>
+    <item name="cell_7_1" type="id"/>
+    <item name="cell_7_2" type="id"/>
+
+    <item name="white_0" type="id"/>
+    <item name="white_1" type="id"/>
+    <item name="white_2" type="id"/>
+    <item name="white_3" type="id"/>
+    <item name="white_4" type="id"/>
+    <item name="white_5" type="id"/>
+    <item name="white_6" type="id"/>
+    <item name="black_0" type="id"/>
+    <item name="black_1" type="id"/>
+    <item name="black_2" type="id"/>
+    <item name="black_3" type="id"/>
+    <item name="black_4" type="id"/>
+    <item name="black_5" type="id"/>
+    <item name="black_6" type="id"/>
+</resources>
