@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                             v.setX(posX - 250); // -   250
                             v.setY(posY - 70); //- 70
                             v.setTag( targetCellImage );
+
                             // TEXTVIEW
                             if(v.getParent()!=null)
                                 ((ViewGroup)v.getParent()).removeView(v);
