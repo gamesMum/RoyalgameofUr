@@ -13,6 +13,9 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Random;
 
 
@@ -37,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> busyCells;
     private View.OnClickListener whiteStoneClickListener;
     private View.OnClickListener blackStoneClickListener;
+    private ImageView thisCell;
+
+    //Store Rout and location in hashTable
+    private Hashtable<String, List<Integer>> cellsHashtable;
 
     private int blackDiceResult;
     private int whiteDiceResult;
@@ -54,10 +61,13 @@ public class MainActivity extends AppCompatActivity {
 
         layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
 
-        //Store the white rout
+        //Store the white rout and black
         whiteRout = new ArrayList<String>(  );
         blackRout = new ArrayList<String>(  );
         busyCells = new ArrayList<String>(  );
+
+        //initiate the hashtable
+        cellsHashtable = new Hashtable<String, List<Integer>>(  );
 
         //define the white and black stones onClickListener
         //This will be called for each player in thier turn and check for available moves
@@ -72,14 +82,31 @@ public class MainActivity extends AppCompatActivity {
                 //check if the dice is on the left or the right of the screen
                 if (x != 488)//the dice is on the left(black)
                 {
-
+                    //++get the current location of the clicked stone
+                    //++start the blackRout from that location
                     //Check available moves and make the move
                     //get the cell the dice value represents
                     if(diceValue > 0) {
                         //check if cell is free (not busy)
                         if(!(cellIsBusy(blackRout.get( diceValue - 1 ))));
                         {
-                            //1: make the move
+                            //1: make the move: move one stone and remove it from stones column
+                                //find the cell and change the image
+
+                            //store the cell id the stone will go to
+                            String targerCellIDName = blackRout.get( diceValue - 1 );
+                            int imageId = getResources().getIdentifier( targerCellIDName,
+                                    "id", getPackageName() );
+                            ImageView targetCellImage = findViewById( imageId );
+                            //just for testing
+                            //store the location of the target cell
+                            List<Integer> targerCellLocation = cellsHashtable.get(targerCellIDName);
+                            //store the current x position
+                            Integer posY = targerCellLocation.get( 1 );
+                            //print it in Log
+                            Log.v( CONTEXT, "the cell location is: " + targerCellLocation.toString() );
+                            //__________________________________________________________________________
+                            //targetCellImage.setVisibility( View.INVISIBLE );
                             //2: set the cell as busy
                             busyCells.add(blackRout.get( diceValue - 1 ));
                             //3: move the stone to that cell
@@ -225,6 +252,9 @@ public class MainActivity extends AppCompatActivity {
 
     //arrange the cells on the screen in grid layout
     public void drawBoardCells() {
+        //get the location of each cell
+        //store it in an array
+        int[] cellsLocation = new int[2];
         //step4: draw main board (I have to draw each square)
         for (int i = 0; i <= 7; i++) {
             for (int j = 0; j <= 2; j++) {
@@ -236,46 +266,59 @@ public class MainActivity extends AppCompatActivity {
 
                 boardCell.setImageResource( imageKey );
                 boardLayout.addView( boardCell );
-
                 //generate Id for each ImageView
                 String imageIdUrl = "cell_" + i + "_" + j;
                 int imageId = getResources().getIdentifier( imageIdUrl, "id", getPackageName() );
                 boardCell.setId( imageId );
-                //store white rout in an array
 
-                whiteRout.add("cell_3_2");
-                whiteRout.add("cell_2_2");
-                whiteRout.add("cell_1_2");
-                whiteRout.add("cell_0_2");
-                whiteRout.add("cell_0_1");
-                whiteRout.add("cell_1_1");
-                whiteRout.add("cell_2_1");
-                whiteRout.add("cell_3_1");
-                whiteRout.add("cell_4_1");
-                whiteRout.add("cell_5_1");
-                whiteRout.add("cell_6_1");
-                whiteRout.add("cell_7_1");
-                whiteRout.add("cell_7_2");
-                whiteRout.add("cell_6_2");
-
-                //store black rout in an array
-
-                blackRout.add("cell_3_0");
-                blackRout.add("cell_2_0");
-                blackRout.add("cell_1_0");
-                blackRout.add("cell_0_0");
-                blackRout.add("cell_0_1");
-                blackRout.add("cell_1_1");
-                blackRout.add("cell_2_1");
-                blackRout.add("cell_3_1");
-                blackRout.add("cell_4_1");
-                blackRout.add("cell_5_1");
-                blackRout.add("cell_6_1");
-                blackRout.add("cell_7_1");
-                blackRout.add("cell_7_0");
-                blackRout.add("cell_6_0");
+                //find and store location of each created cell in the array
+               // thisCell.findViewById( imageKey );
+                boardCell.getLocationOnScreen( cellsLocation );
+                //convert int array to Integer array
+                List <Integer> cellsLocationInteger = new ArrayList<>( cellsLocation.length );
+                for(int element : cellsLocation){
+                    cellsLocationInteger.add(Integer.valueOf( element ));
+                }
+                //store the cell Id as key and location as value in the hashtable
+                cellsHashtable.put(imageIdUrl, cellsLocationInteger);
 
             }
+            //store white rout in an array
+
+            whiteRout.add("cell_3_2");
+            whiteRout.add("cell_2_2");
+            whiteRout.add("cell_1_2");
+            whiteRout.add("cell_0_2");
+            whiteRout.add("cell_0_1");
+            whiteRout.add("cell_1_1");
+            whiteRout.add("cell_2_1");
+            whiteRout.add("cell_3_1");
+            whiteRout.add("cell_4_1");
+            whiteRout.add("cell_5_1");
+            whiteRout.add("cell_6_1");
+            whiteRout.add("cell_7_1");
+            whiteRout.add("cell_7_2");
+            whiteRout.add("cell_6_2");
+
+            //store black rout in an array
+
+            blackRout.add("cell_3_0");
+            blackRout.add("cell_2_0");
+            blackRout.add("cell_1_0");
+            blackRout.add("cell_0_0");
+            blackRout.add("cell_0_1");
+            blackRout.add("cell_1_1");
+            blackRout.add("cell_2_1");
+            blackRout.add("cell_3_1");
+            blackRout.add("cell_4_1");
+            blackRout.add("cell_5_1");
+            blackRout.add("cell_6_1");
+            blackRout.add("cell_7_1");
+            blackRout.add("cell_7_0");
+            blackRout.add("cell_6_0");
+
+
+
         }
     }
 
