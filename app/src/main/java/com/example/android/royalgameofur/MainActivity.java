@@ -21,8 +21,8 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     //the board dimensions
-    private final int  WIDTH = 2;
-    private final int HEIGHT = 7;
+    private final int  COLUMNS = 3;
+    private final int ROWS = 8;
     private final int STONESNUM = 7;
     //define the views variables
     private final String CONTEXT = "MainActivity";
@@ -38,212 +38,50 @@ public class MainActivity extends AppCompatActivity {
     private boolean busy;
     private final boolean YOU_WON = true;
     private RelativeLayout.LayoutParams layoutParams;
+    private RelativeLayout.LayoutParams layoutParams2;
     private ArrayList<String> whiteRout;
     private ArrayList<String> blackRout;
-    private ArrayList<String> busyCells;
     private View.OnClickListener whiteStoneClickListener;
     private View.OnClickListener blackStoneClickListener;
-    private ImageView thisCell;
+    private  boolean whiteBusy;
+    private  boolean blackBusy;
 
-    //Store Rout and location in hashTable
-    private Hashtable<String, List<Integer>> cellsHashtable;
-
-    private int blackDiceResult;
-    private int whiteDiceResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-
+        //initiating booleans
+        whiteBusy = true;
+        blackBusy = false;
         //create new xml element
         mainLayout = (RelativeLayout) findViewById( R.id.relativeLayout_1 );
         blackLayout = (LinearLayout) findViewById( R.id.black_layout );
         whiteLayout = (LinearLayout) findViewById( R.id.white_layout );
         boardLayout = (GridLayout) findViewById( R.id.boardLayout );
+        //restore GridView
+        boardLayout.removeAllViews();
 
         layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
-
+        layoutParams2 = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
         //Store the white rout and black
         whiteRout = new ArrayList<String>(  );
         blackRout = new ArrayList<String>(  );
-        busyCells = new ArrayList<String>(  );
-
-        //initiate the hashtable
-        cellsHashtable = new Hashtable<String, List<Integer>>(  );
 
         //define the white and black stones onClickListener
         //This will be called for each player in thier turn and check for available moves
         blackStoneClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //1: check the dice position (which player will play now)
-                //get the location of the dice
-                int[] outLocation = new int[2];
-                dice.getLocationOnScreen( outLocation );
-                int x = outLocation[0];
-
-                //check if the dice is on the left or the right of the screen
-                if (x != 488)//the dice is on the left(black)
-                {
-                    //++get the current location of the clicked stone
-                    //++start the blackRout from that location
-                    //Check available moves and make the move
-                    //get the cell the dice value represents
-                    if(diceValue > 0) {
-                        //check if cell is free (not busy)
-                        if(!(cellIsBusy(blackRout.get( diceValue - 1 ))));
-                        {
-
-                            //1: make the move: move one stone and remove it from stones column
-                                //find the cell and change the image
-
-                            //store the cell id the stone will go to
-                            String targerCellIDName = blackRout.get( diceValue - 1 );
-                            //make it busy
-                            busyCells.add(targerCellIDName);
-                            int imageId = getResources().getIdentifier( targerCellIDName,
-                                    "id", getPackageName() );
-                            ImageView targetCellImage = findViewById( imageId );
-                            //just for testing
-                            //store the location of the target cell
-                            List<Integer> targerCellLocation = cellsHashtable.get(targerCellIDName);
-                            //store the current x position
-                            Integer posX = targerCellLocation.get( 0 );
-                            Integer posY = targerCellLocation.get( 1 );
-                            //print it in Log
-                            Log.v( CONTEXT, "the cell location is: " + posX  + " , " + posY );
-                            //change the stone position and change the tag
-                            //so it is the cell id it rested on
-                            v.setX(posX - 250); // -   250
-                            v.setY(posY - 70); //- 70
-                            v.setTag( targetCellImage );
-
-                            // TEXTVIEW
-                            if(v.getParent()!=null)
-                                ((ViewGroup)v.getParent()).removeView(v);
-                            mainLayout.addView( v );
-
-                            //__________________________________________________________________________
-                            //targetCellImage.setVisibility( View.INVISIBLE );
-                            //2: set the cell as busy
-                            busyCells.add(blackRout.get( diceValue - 1 ));
-                            //3: move the stone to that cell
-                        }
-                        Log.v( CONTEXT, "the cell id is: " + blackRout.get( diceValue - 1 ) );
-                        //mark this cell as busy so hte other player won't ne able to move there
-
-                        //add delay to get player attention
-                    }else
-                        Log.v( CONTEXT, "You got 0...try again next time!!" );
-
-                    //...............
-                    //swipe the dice to the right (white)
-                    layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
-                    layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
-                    mainLayout.removeView( dice );
-                    mainLayout.addView( dice, layoutParams );
-                    //roll the dice for the other player
-                    diceValue = rollDice();
-
-                }
-                else
-                {
-                    //the dice is on the left
-                    Toast.makeText( getApplicationContext(), "Wait for your turn!",
-                            Toast.LENGTH_SHORT ).show();
-                }
-
-
-                //2: check available moves for that player5
-                //3: perform the move
-                //is the game finished yet
-
+               makeTheMove( v, "black" );
             }
         };
 
         whiteStoneClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //1: check the dice position (which player will play now)
-                //get the location of the dice
-                int[] outLocation = new int[2];
-                dice.getLocationOnScreen( outLocation );
-                int x = outLocation[0];
-
-                //check if the dice is on the right or the left of the screen
-                if (x == 488)//the dice is on the right(white)
-                {
-                    //++get the current location of the clicked stone
-                    //++start the whiteRout from that location
-                    //Check available moves and make the move
-                    //get the cell the dice value represents
-                    if(diceValue > 0) {
-                        //check if cell is free (not busy)
-                        if(!(cellIsBusy(whiteRout.get( diceValue - 1 ))));
-                        {
-                            //1: make the move: move one stone and remove it from stones column
-                            //find the cell and change the image
-
-                            //store the cell id the stone will go to
-                            String targerCellIDName = whiteRout.get( diceValue - 1 );
-                            //make it busy
-                            busyCells.add(targerCellIDName);
-                            int imageId = getResources().getIdentifier( targerCellIDName,
-                                    "id", getPackageName() );
-                            ImageView targetCellImage = findViewById( imageId );
-                            //just for testing
-                            //store the location of the target cell
-                            List<Integer> targerCellLocation = cellsHashtable.get(targerCellIDName);
-                            //store the current x position
-                            Integer posX = targerCellLocation.get( 0 );
-                            Integer posY = targerCellLocation.get( 1 );
-                            //print it in Log
-                            Log.v( CONTEXT, "the cell location is: " + posX  + " , " + posY );
-                            //change the stone position and change the tag
-                            //so it is the cell id it rested on
-                            v.setX(posX - 250); // -   250
-                            v.setY(posY - 70); //- 70
-                            v.setTag( targetCellImage );
-                            // TEXTVIEW
-                            if(v.getParent()!=null)
-                                ((ViewGroup)v.getParent()).removeView(v);
-                            mainLayout.addView( v );
-                            //__________________________________________________________________________
-                            //targetCellImage.setVisibility( View.INVISIBLE );
-                            //2: set the cell as busy
-                            busyCells.add(whiteRout.get( diceValue - 1 ));
-                            //3: move the stone to that cell
-                        }
-
-                        //add delay to get player attention
-                    }else
-                         Toast.makeText( getApplicationContext(), "You've got 0!",
-                         Toast.LENGTH_SHORT);
-                    //...............
-                    //swipe the dice to the left (black)
-                    layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
-                    layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
-                    mainLayout.removeView( dice );
-                    mainLayout.addView( dice, layoutParams );
-                    //roll the dice for the other player
-                    diceValue = rollDice();
-
-                }
-                else
-                {
-                    //the dice is on the left
-                    Toast.makeText( getApplicationContext(), "Wait for your turn!",
-                            Toast.LENGTH_SHORT ).show();
-                }
-
-
-                //2: check available moves for that player5
-                //3: perform the move
-                //is the game finished yet
-
+                makeTheMove( v, "white" );
             }
         };
 
@@ -260,26 +98,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if(hasFocus)
-            storeCellsLocation();
-
-    }
-
-    //check busyCells
-    public boolean cellIsBusy(String cellID)
-    {
-        //check if the cell is busy
-        for(String cell : busyCells)
-        {
-            if(cellID == cell)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 
     //arrange the board elements on the screen
     private void drawBoard() {
@@ -301,18 +119,56 @@ public class MainActivity extends AppCompatActivity {
 
         //rol dice for the first time
         diceValue = rollDice();
+        //TODO 1: diable the Clicks on all black stones
+        disableClicks("black");
         Log.v(CONTEXT, "dice value for the first time is"+ diceValue );
+
+        //store white rout in an array
+
+        whiteRout.add("cell_3_2");
+        whiteRout.add("cell_2_2");
+        whiteRout.add("cell_1_2");
+        whiteRout.add("cell_0_2");
+        whiteRout.add("cell_0_1");
+        whiteRout.add("cell_1_1");
+        whiteRout.add("cell_2_1");
+        whiteRout.add("cell_3_1");
+        whiteRout.add("cell_4_1");
+        whiteRout.add("cell_5_1");
+        whiteRout.add("cell_6_1");
+        whiteRout.add("cell_7_1");
+        whiteRout.add("cell_7_2");
+        whiteRout.add("cell_6_2");
+
+        //store black rout in an array
+
+        blackRout.add("cell_3_0");
+        blackRout.add("cell_2_0");
+        blackRout.add("cell_1_0");
+        blackRout.add("cell_0_0");
+        blackRout.add("cell_0_1");
+        blackRout.add("cell_1_1");
+        blackRout.add("cell_2_1");
+        blackRout.add("cell_3_1");
+        blackRout.add("cell_4_1");
+        blackRout.add("cell_5_1");
+        blackRout.add("cell_6_1");
+        blackRout.add("cell_7_1");
+        blackRout.add("cell_7_0");
+        blackRout.add("cell_6_0");
+
+
+
 
     }
 
     //arrange the cells on the screen in grid layout
     public void drawBoardCells() {
-        //get the location of each cell
-        //store it in an array
-        int[] cellsLocation = new int[2];
         //step4: draw main board (I have to draw each square)
-        for (int i = 0; i <= HEIGHT; i++) {
-            for (int j = 0; j <= WIDTH; j++) {
+        boardLayout.setColumnCount(COLUMNS);
+        boardLayout.setRowCount(ROWS);
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLUMNS; j++) {
                 boardCell = new ImageView( this );
 
                 //cell_0_0, cell_0_1, cell_0_2, etc...
@@ -320,7 +176,12 @@ public class MainActivity extends AppCompatActivity {
                 int imageKey = getResources().getIdentifier( imageResourceIdUrl, "drawable", getPackageName() );
 
                 boardCell.setImageResource( imageKey );
-                boardLayout.addView( boardCell );
+                boardCell.setLayoutParams(  new FrameLayout.LayoutParams( 100, 100 ) );
+                GridLayout.Spec rowSpan = GridLayout.spec(GridLayout.UNDEFINED, 1);
+                GridLayout.Spec colspan = GridLayout.spec(GridLayout.UNDEFINED, 1);
+                GridLayout.LayoutParams gridParam = new GridLayout.LayoutParams(
+                        rowSpan, colspan);
+                boardLayout.addView( boardCell, gridParam );
                 //generate Id for each ImageView
                 String imageIdUrl = "cell_" + i + "_" + j;
                 int imageId = getResources().getIdentifier( imageIdUrl, "id", getPackageName() );
@@ -329,71 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-            //store white rout in an array
 
-            whiteRout.add("cell_3_2");
-            whiteRout.add("cell_2_2");
-            whiteRout.add("cell_1_2");
-            whiteRout.add("cell_0_2");
-            whiteRout.add("cell_0_1");
-            whiteRout.add("cell_1_1");
-            whiteRout.add("cell_2_1");
-            whiteRout.add("cell_3_1");
-            whiteRout.add("cell_4_1");
-            whiteRout.add("cell_5_1");
-            whiteRout.add("cell_6_1");
-            whiteRout.add("cell_7_1");
-            whiteRout.add("cell_7_2");
-            whiteRout.add("cell_6_2");
-
-            //store black rout in an array
-
-            blackRout.add("cell_3_0");
-            blackRout.add("cell_2_0");
-            blackRout.add("cell_1_0");
-            blackRout.add("cell_0_0");
-            blackRout.add("cell_0_1");
-            blackRout.add("cell_1_1");
-            blackRout.add("cell_2_1");
-            blackRout.add("cell_3_1");
-            blackRout.add("cell_4_1");
-            blackRout.add("cell_5_1");
-            blackRout.add("cell_6_1");
-            blackRout.add("cell_7_1");
-            blackRout.add("cell_7_0");
-            blackRout.add("cell_6_0");
-
-
-
-        }
-    }
-    //helper method to store cells location and Ids in hashtable
-    private void storeCellsLocation()
-    {
-        //store it in an array
-        int[] cellsLocation = new int[2];
-        for (int i = 0; i <= HEIGHT; i++) {
-            for (int j = 0; j <= WIDTH; j++) {
-                boardCell = new ImageView( this );
-
-                //generate the Id name for each ImageView
-                String imageIdUrl = "cell_" + i + "_" + j;
-                int imageId = getResources().getIdentifier( imageIdUrl, "id", getPackageName() );
-
-                thisCell = (ImageView) findViewById( imageId );
-                if(thisCell != null) {
-                    //find and store location of each created cell in the array
-                    thisCell.getLocationOnScreen( cellsLocation );
-                    Log.v( CONTEXT, "found cell location : " + cellsLocation );
-                    //convert int array to Integer array
-                    List<Integer> cellsLocationInteger = new ArrayList<>( cellsLocation.length );
-                    for (int element : cellsLocation) {
-                        cellsLocationInteger.add( element );
-                    }
-                    //store the cell Id as key and location as value in the hashtable
-                    cellsHashtable.put( imageIdUrl, cellsLocationInteger );
-                }
-            }
         }
     }
     //draw each player stones on the screen
@@ -463,5 +260,150 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void makeTheMove(View stone, String currentPlayer)
+    {
+
+        ArrayList<String> currentRout = new ArrayList<>(  );
+        //set current rout fo the player
+        if(currentPlayer == "black")
+        {
+            currentRout = blackRout;
+        }
+        else currentRout = whiteRout;
+
+            //++get the current location of the clicked stone
+            //++start the currentRout from that location
+            //Check available moves and make the move
+            //get the cell the dice value represents
+            if(diceValue > 0) {
+                //store the cell id the stone will go to
+                String targetCellIDName = currentRout.get( diceValue - 1 );
+                int imageId = getResources().getIdentifier( targetCellIDName,
+                        "id", getPackageName() );
+                ImageView targetCellImage = findViewById( imageId );
+                int[] cellLocation = new int[2];
+                targetCellImage.getLocationOnScreen( cellLocation );
+                int posX = cellLocation[0];
+                int posY = cellLocation[1];
+                //check if cell is free
+                if(targetCellImage.getTag() == null)
+                {
+                    //targetCellImage.setVisibility( View.INVISIBLE );
+                    //1: make the move: move one stone and remove it from stones column
+                    //store the current x position
+                    //change the stone position and change the tag
+                    //3: move the stone to that cell
+                    layoutParams2.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+                    layoutParams2.removeRule( RelativeLayout.ALIGN_PARENT_END );
+                    //reset padding
+                    stone.setPadding(0, 0, 0, 0);
+                    stone.setX(posX); // -   250
+                    stone.setY(posY); //- 70
+
+                    //for testing++++++++++++++++++++++++++++++++++++++
+                    int[] stoneLocation = new int[2];
+                    stone.getLocationOnScreen( stoneLocation );
+                    int stoneX = stoneLocation[0];
+                    int stoneY = stoneLocation[1];
+                    ///////////////////////////////////
+                    Log.v(CONTEXT, "This is cell x, y: " + posX +
+                            ", "+ posY);
+                    Log.v(CONTEXT, "This is stone x, y: " + stoneX +
+                            ", "+ stoneY);
+                    //change the tag for the cell (black or white)
+                    targetCellImage.setTag( currentPlayer );
+                    // TEXTVIEW
+                    if(stone.getParent()!=null)
+                        ((ViewGroup)stone.getParent()).removeView(stone);
+                    mainLayout.addView( stone, layoutParams2 );
+
+                }else if(targetCellImage.getTag() == "black") {
+                    Toast.makeText( getApplicationContext(), "other player resting here!",
+                            Toast.LENGTH_SHORT).show();
+                }else if(targetCellImage.getTag() == "white") {
+                    Toast.makeText( getApplicationContext(), "it is busy!",
+                            Toast.LENGTH_SHORT).show();
+                }
+
+
+                //add delay to get player attention
+            }else{
+                Toast.makeText( getApplicationContext(), "You've got 0!",
+                        Toast.LENGTH_SHORT).show();
+            }
+            //...............
+            //swipe the dice to the left (black) or right (white)
+            if(currentPlayer == "black")
+            swapTo("white");
+            else swapTo("black");
+
+        //2: check available moves for that player5
+        //3: perform the move
+        //is the game finished yet
+
+    }
+    private void swapTo(String player)
+    {
+        if(player == "white") {
+            whiteBusy = true;
+            blackBusy = false; //he is not playing
+            layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
+            layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+            mainLayout.removeView( dice );
+            mainLayout.addView( dice, layoutParams );
+            //roll the dice for the other player
+            diceValue = rollDice();
+            //disable clicks for black and enable it for the white
+            disableClicks( "black" );
+        }
+        else
+        {
+            blackBusy = true;
+            whiteBusy = false; //he is not playing
+            layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+            layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
+            mainLayout.removeView( dice );
+            mainLayout.addView( dice, layoutParams );
+            //roll the dice for the other player
+            diceValue = rollDice();
+            //disable clicks for white and enable it for the black
+            disableClicks("white");
+        }
+
+    }
+
+
+    private void disableClicks(String player) {
+        if (player == "black") //disable black & enable white
+        {
+            for (int i = 0; i < 7; i++) {
+                //generate Id for each ImageView
+                String blackImageIdUrl = "black_" + i;
+                String whiteImageIdUrl = "white_" + i;
+                int blackImageId = getResources().getIdentifier( blackImageIdUrl, "id", getPackageName() );
+                int whiteImageId = getResources().getIdentifier( whiteImageIdUrl, "id", getPackageName() );
+                ImageView blackStone = findViewById( blackImageId );
+                ImageView whitekStone = findViewById( whiteImageId );
+                blackStone.setClickable(false);//can't play now
+                whitekStone.setClickable(true);//it is whit's turn
+
+            }
+        }
+        else //disable white and enable black
+        {
+            for (int i = 0; i < 7; i++) {
+                //generate Id for each ImageView
+                String blackImageIdUrl = "black_" + i;
+                String whiteImageIdUrl = "white_" + i;
+                int blackImageId = getResources().getIdentifier( blackImageIdUrl, "id", getPackageName() );
+                int whiteImageId = getResources().getIdentifier( whiteImageIdUrl, "id", getPackageName() );
+                ImageView blackStone = findViewById( blackImageId );
+                ImageView whitekStone = findViewById( whiteImageId );
+                blackStone.setClickable( true );//it is whit's turn
+                whitekStone.setClickable( false );//can't play now
+
+            }
+        }
+    }
 
 }
