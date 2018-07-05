@@ -41,10 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout.LayoutParams layoutParams2;
     private ArrayList<String> whiteRout;
     private ArrayList<String> blackRout;
+    private ArrayList<String> specialCells;
     private View.OnClickListener whiteStoneClickListener;
     private View.OnClickListener blackStoneClickListener;
-    private  boolean whiteBusy;
-    private  boolean blackBusy;
 
 
     @Override
@@ -52,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
-        //initiating booleans
-        whiteBusy = true;
-        blackBusy = false;
         //create new xml element
         mainLayout = (RelativeLayout) findViewById( R.id.relativeLayout_1 );
         blackLayout = (LinearLayout) findViewById( R.id.black_layout );
@@ -68,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         //Store the white rout and black
         whiteRout = new ArrayList<String>(  );
         blackRout = new ArrayList<String>(  );
-
+        specialCells = new ArrayList<String>(  );
         //define the white and black stones onClickListener
         //This will be called for each player in thier turn and check for available moves
         blackStoneClickListener = new View.OnClickListener() {
@@ -119,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         //rol dice for the first time
         diceValue = rollDice();
-        //TODO 1: diable the Clicks on all black stones
         disableClicks("black");
         Log.v(CONTEXT, "dice value for the first time is"+ diceValue );
 
@@ -157,6 +152,13 @@ public class MainActivity extends AppCompatActivity {
         blackRout.add("cell_7_0");
         blackRout.add("cell_6_0");
 
+        //store special cells location
+        specialCells.add("cel_0_0");
+        specialCells.add("cel_0_2");
+        specialCells.add("cel_3_1");
+        specialCells.add("cel_6_0");
+        specialCells.add("cel_6_3");
+        specialCells.add("cell_won");
 
 
 
@@ -276,6 +278,12 @@ public class MainActivity extends AppCompatActivity {
             //Check available moves and make the move
             //get the cell the dice value represents
             if(diceValue > 0) {
+                //TODO: check the stone current position (get the stone's tag and continue from there
+                //TODO: if it is special cell then play again
+                //TODO: if there ia another player DESTROY!
+                //TODO: if the player finish the game VICTORY!
+                //TODO: play with computer
+                //TODO: change the target cell image to colored one
                 //store the cell id the stone will go to
                 String targetCellIDName = currentRout.get( diceValue - 1 );
                 int imageId = getResources().getIdentifier( targetCellIDName,
@@ -285,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
                 targetCellImage.getLocationOnScreen( cellLocation );
                 int posX = cellLocation[0];
                 int posY = cellLocation[1];
+                stone.setTag( targetCellIDName );//set the current cell Id name as the stone tag
                 //check if cell is free
                 if(targetCellImage.getTag() == null)
                 {
@@ -297,8 +306,8 @@ public class MainActivity extends AppCompatActivity {
                     layoutParams2.removeRule( RelativeLayout.ALIGN_PARENT_END );
                     //reset padding
                     stone.setPadding(0, 0, 0, 0);
-                    stone.setX(posX); // -   250
-                    stone.setY(posY); //- 70
+                    stone.setX(posX + 35);
+                    stone.setY(posY - 60);
 
                     //for testing++++++++++++++++++++++++++++++++++++++
                     int[] stoneLocation = new int[2];
@@ -317,11 +326,15 @@ public class MainActivity extends AppCompatActivity {
                         ((ViewGroup)stone.getParent()).removeView(stone);
                     mainLayout.addView( stone, layoutParams2 );
 
-                }else if(targetCellImage.getTag() == "black") {
-                    Toast.makeText( getApplicationContext(), "other player resting here!",
-                            Toast.LENGTH_SHORT).show();
-                }else if(targetCellImage.getTag() == "white") {
+                }else if(targetCellImage.getTag() == currentPlayer) {
                     Toast.makeText( getApplicationContext(), "it is busy!",
+                            Toast.LENGTH_SHORT).show();
+
+                }
+                //another player is on the cell
+                else if(targetCellImage.getTag() != currentPlayer){
+                   //TODO : kill the pther player
+                    Toast.makeText( getApplicationContext(), "other player resting here!",
                             Toast.LENGTH_SHORT).show();
                 }
 
@@ -345,8 +358,6 @@ public class MainActivity extends AppCompatActivity {
     private void swapTo(String player)
     {
         if(player == "white") {
-            whiteBusy = true;
-            blackBusy = false; //he is not playing
             layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_LEFT );
             layoutParams.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
             mainLayout.removeView( dice );
@@ -358,8 +369,6 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            blackBusy = true;
-            whiteBusy = false; //he is not playing
             layoutParams.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
             layoutParams.addRule( RelativeLayout.ALIGN_PARENT_LEFT );
             mainLayout.removeView( dice );
