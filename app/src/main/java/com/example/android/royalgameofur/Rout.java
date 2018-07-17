@@ -3,9 +3,9 @@ package com.example.android.royalgameofur;
 import java.util.ArrayList;
 
 public class Rout {
-    public  ArrayList<String> whiteRout;
-    public  ArrayList<String> blackRout;
-    public  ArrayList<String> specialCells;
+    private   ArrayList<String> whiteRout;
+    private  ArrayList<String> blackRout;
+    private  ArrayList<String> specialCells;
 
     Rout(){
 
@@ -46,11 +46,11 @@ public class Rout {
         blackRout.add( "cell_6_0" );
 
         //store special cells location
-        specialCells.add( "cel_0_0" );
-        specialCells.add( "cel_0_2" );
-        specialCells.add( "cel_3_1" );
-        specialCells.add( "cel_6_0" );
-        specialCells.add( "cel_6_3" );
+        specialCells.add( "cell_0_0" );
+        specialCells.add( "cell_0_2" );
+        specialCells.add( "cell_3_1" );
+        specialCells.add( "cell_6_0" );
+        specialCells.add( "cell_6_3" );
     }
 
     public  ArrayList<String> getBlackRout() {
