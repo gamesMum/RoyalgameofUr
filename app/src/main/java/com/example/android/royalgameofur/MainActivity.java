@@ -335,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //if the stone is already on the board
                 else {
+
                     String stoneOldtPosition = stone.getTag().toString();
                     int startFromHere = 0;
                     int moveThisNumberOfStones = 0;
