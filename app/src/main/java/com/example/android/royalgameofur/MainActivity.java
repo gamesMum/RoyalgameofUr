@@ -234,7 +234,8 @@ public class MainActivity extends AppCompatActivity {
         //use this to attack the enemy
         //get the stone ID to pass it to the new added stone
         int stoneId = stone.getId();
-        String stoneIDName  = getResources().getResourceName( stoneId );
+        String stoneIDNameLong  = getResources().getResourceName( stoneId );
+        String stoneIDName = stoneIDNameLong.substring( stoneIDNameLong.indexOf( "/" ) + 1 );
         String opponent = null;
         LinearLayout opponentLayout = null;
         if(currentPlayer == "black") {
@@ -294,14 +295,6 @@ public class MainActivity extends AppCompatActivity {
                         //add new stone on the board representing the removed stone
                         addStoneAt( currentPlayer, posX, posY, targetCellIDName, stoneIDName );
                         stoneInPlusOne( currentPlayer );//new stone added on the board
-                        //for debugging-----------------------------------------------------------
-                        Log.v(CONTEXT, "black stones on board: " + blackStonesInCount);
-                        Log.v(CONTEXT, "black stones out in the line: " + blackStonesOutCount);
-                        Log.v(CONTEXT, "black stones finished: " + blackStoneFinishCount);
-                        Log.v(CONTEXT, "white stones on board: " + whiteStonesInCount);
-                        Log.v(CONTEXT, "white stones out in the line: " + whiteStonesOutCount);
-                        Log.v(CONTEXT, "white stones finished: " + whiteStoneFinishCount);
-                        //-------------------------------------------------------------------------
                         if (stone.getParent() != null) ((ViewGroup) stone.getParent()).removeView( stone );
                         //check if it is a special cell
                         if (CheckSpeciLCell(targetCellIDName))
@@ -371,14 +364,6 @@ public class MainActivity extends AppCompatActivity {
                             int oldCellID = getResources().getIdentifier( stoneOldtPosition, "id", getPackageName() );
                             ImageView oldCellImage = findViewById( oldCellID );
                             oldCellImage.setTag( null );
-                            //for debugging-----------------------------------------------------------
-                            Log.v(CONTEXT, "black stones on board: " + blackStonesInCount);
-                            Log.v(CONTEXT, "black stones out in the line: " + blackStonesOutCount);
-                            Log.v(CONTEXT, "black stones finished: " + blackStoneFinishCount);
-                            Log.v(CONTEXT, "white stones on board: " + whiteStonesInCount);
-                            Log.v(CONTEXT, "white stones out in the line: " + whiteStonesOutCount);
-                            Log.v(CONTEXT, "white stones finished: " + whiteStoneFinishCount);
-                            //-------------------------------------------------------------------------
                             if(CheckSpeciLCell( targetCellIDName ))
                             {
                                 //roll the dice for the same player
@@ -395,9 +380,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                         }
+
                         //the target cell is busy
                         //keep the player turn unless there are no available moves
                         else if (targetCellImage.getTag().toString().charAt( 0 ) == currentPlayer.charAt( 0 )) {
+                            Log.v( CONTEXT, "first letter in targetCellImage :" + targetCellImage.getTag().toString().charAt( 0 ));
+                            Log.v( CONTEXT, "first letter in currentPlayer :" +  currentPlayer.charAt( 0 ));
                             Toast.makeText( getApplicationContext(), "it is busy!", Toast.LENGTH_SHORT ).show();
 
 
@@ -406,6 +394,8 @@ public class MainActivity extends AppCompatActivity {
                         //need to kill the other player (add the logic later)
                         else if (targetCellImage.getTag() != null &&
                                 targetCellImage.getTag().toString().charAt( 0 ) != currentPlayer.charAt( 0 )) {
+                            Log.v( CONTEXT, "first letter in targetCellImage :" + targetCellImage.getTag().toString().charAt( 0 ));
+                            Log.v( CONTEXT, "first letter in currentPlayer :" +  currentPlayer.charAt( 0 ));
                             if(CheckSpeciLCell( targetCellIDName ))
                             {
                                 //the enemy is protected
@@ -442,14 +432,12 @@ public class MainActivity extends AppCompatActivity {
                                     int oldCellID = getResources().getIdentifier( stoneOldtPosition, "id", getPackageName() );
                                     ImageView oldCellImage = findViewById( oldCellID );
                                     oldCellImage.setTag( null );
-                                    //for debugging-----------------------------------------------------------
-                                    Log.v(CONTEXT, "black stones on board: " + blackStonesInCount);
-                                    Log.v(CONTEXT, "black stones out in the line: " + blackStonesOutCount);
-                                    Log.v(CONTEXT, "black stones finished: " + blackStoneFinishCount);
-                                    Log.v(CONTEXT, "white stones on board: " + whiteStonesInCount);
-                                    Log.v(CONTEXT, "white stones out in the line: " + whiteStonesOutCount);
-                                    Log.v(CONTEXT, "white stones finished: " + whiteStoneFinishCount);
-                                    //-------------------------------------------------------------------------
+
+                                    //swipe the dice to the left (black) or right (white)
+                                    if (currentPlayer == "black") swapTo( "white" );
+                                    else swapTo( "black" );
+                                    //roll the dice for the other player
+                                    diceValue = rollDice();
                                 }
                                 }
 
@@ -459,14 +447,6 @@ public class MainActivity extends AppCompatActivity {
                        //if (stone.getParent() != null) ((ViewGroup) stone.getParent()).removeView( stone );
                         stone.setVisibility( View.GONE );
                         stoneFinishedPlusOne( currentPlayer );
-                        //for debugging-----------------------------------------------------------
-                        Log.v(CONTEXT, "black stones on board: " + blackStonesInCount);
-                        Log.v(CONTEXT, "black stones out in the line: " + blackStonesOutCount);
-                        Log.v(CONTEXT, "black stones finished: " + blackStoneFinishCount);
-                        Log.v(CONTEXT, "white stones on board: " + whiteStonesInCount);
-                        Log.v(CONTEXT, "white stones out in the line: " + whiteStonesOutCount);
-                        Log.v(CONTEXT, "white stones finished: " + whiteStoneFinishCount);
-                        //-------------------------------------------------------------------------
                         if(getStoneFinishCount( currentPlayer ) == 7)//all stones finished
                         {
                             //state the winner and stop the game
@@ -712,31 +692,36 @@ public class MainActivity extends AppCompatActivity {
 
                 int blackImageId = getResources().getIdentifier( blackImageIdUrl, "id", getPackageName() );
                 ImageView blackStone = findViewById( blackImageId );
+                if (blackStone.getVisibility() == View.VISIBLE) { //if the stone is not finished
+                    if (blackStone.getTag() == null) {
+                        startFromHere = -1;
+                    } else//if the stone is on the board
+                    {
+                        String blackStoneCurrentCell = blackStone.getTag().toString();
+                        for (String cellId : rout.getBlackRout()) {
+                            //start counting from this id
+                            if (cellId.equals( blackStoneCurrentCell )) startFromHere = rout.getBlackRout().indexOf( cellId );
 
-                if (blackStone.getTag() == null) {
-                    startFromHere = -1;
-                } else//if the stone is on the board
-                {
-                    String blackStoneCurrentCell = blackStone.getTag().toString();
-                    for (String cellId : rout.getBlackRout()) {
-                        //start counting from this id
-                        if (cellId.equals( blackStoneCurrentCell )) startFromHere = rout.getBlackRout().indexOf( cellId );
+                        }
 
                     }
-
-                }
-                //add the dice value to the current place of
-                int nextRoutIndex = startFromHere + diceValue;
-                if (nextRoutIndex <= routSize) {
-                    String nextCell = rout.getBlackRout().get( nextRoutIndex );
-                    int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
-                    ImageView nextCellImage = findViewById( nextCellIDName );
-                    if (nextCellImage.getTag() == null)//it is free
+                    //add the dice value to the current place of
+                    int nextRoutIndex = startFromHere + diceValue;
+                    if (nextRoutIndex < routSize) {
+                        String nextCell = rout.getBlackRout().get( nextRoutIndex );
+                        int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
+                        ImageView nextCellImage = findViewById( nextCellIDName );
+                        if (nextCellImage.getTag() == null)//it is free
+                        {
+                            movesNumber++;//one available move
+                        } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'w') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
+                        {
+                            movesNumber++;//you got another move
+                        }
+                    }
+                    if(nextRoutIndex == routSize)
                     {
-                        movesNumber++;//one available move
-                    } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'w') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
-                    {
-                        movesNumber++;//you got another move
+                        movesNumber++;
                     }
                 }
             }
@@ -749,34 +734,38 @@ public class MainActivity extends AppCompatActivity {
 
                     int whiteImageId = getResources().getIdentifier( whiteImageIdUrl, "id", getPackageName() );
                     ImageView whiteStone = findViewById( whiteImageId );
-                    if( whiteStone.getTag() == null)
-                    {
-                        startFromHere = -1;
-                    }
+                    if (whiteStone.getVisibility() == View.VISIBLE) {  //if the stone is not finished
+                        if (whiteStone.getTag() == null) {
+                            startFromHere = -1;
+                        } else//if the stone is on the board
+                        {
+                            String whiteStoneCurrentCell = whiteStone.getTag().toString();
+                            for (String cellId : rout.getWhiteRout()) {
+                                //start counting from this id
+                                if (cellId.equals( whiteStoneCurrentCell )) startFromHere = rout.getWhiteRout().indexOf( cellId );
 
-                    else//if the stone is on the board
-                    {
-                        String whiteStoneCurrentCell = whiteStone.getTag().toString();
-                        for (String cellId : rout.getWhiteRout()) {
-                            //start counting from this id
-                            if (cellId.equals( whiteStoneCurrentCell ))
-                                startFromHere = rout.getWhiteRout().indexOf( cellId );
+                            }
 
                         }
 
-                    }
-
-                    //add the dice value to the current place of
-                    int nextRoutIndex = startFromHere + diceValue;
-                    String nextCell = rout.getWhiteRout().get( nextRoutIndex );
-                    int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
-                    ImageView nextCellImage = findViewById( nextCellIDName );
-                    if (nextCellImage.getTag() == null)//it is free
-                    {
-                        movesNumber++;//one available move
-                    } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'b') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
-                    {
-                        movesNumber++;//you got another move
+                        //add the dice value to the current place of
+                        int nextRoutIndex = startFromHere + diceValue;
+                        if (nextRoutIndex < routSize) {
+                            String nextCell = rout.getWhiteRout().get( nextRoutIndex );
+                            int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
+                            ImageView nextCellImage = findViewById( nextCellIDName );
+                            if (nextCellImage.getTag() == null)//it is free
+                            {
+                                movesNumber++;//one available move
+                            } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'b') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
+                            {
+                                movesNumber++;//you got another move
+                            }
+                        }
+                        if(nextRoutIndex == routSize)
+                        {
+                            movesNumber++;
+                        }
                     }
                 }
             }
