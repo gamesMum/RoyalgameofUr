@@ -1,11 +1,13 @@
 package com.example.android.royalgameofur;
 
+import android.app.Dialog;
 import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -316,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //the target cell is busy
                     //keep the player turn unless there are no available moves
-                    else if (targetCellImage.getTag() == currentPlayer && availableMove(currentPlayer, diceValue)) {
+                    else if (targetCellImage.getTag() == currentPlayer && numberOfMoves( currentPlayer, diceValue ) != 0) {
                         Toast.makeText( getApplicationContext(), "it is busy!", Toast.LENGTH_SHORT ).show();
 
                     }
@@ -447,10 +449,26 @@ public class MainActivity extends AppCompatActivity {
                        //if (stone.getParent() != null) ((ViewGroup) stone.getParent()).removeView( stone );
                         stone.setVisibility( View.GONE );
                         stoneFinishedPlusOne( currentPlayer );
+                        int oldCellID = getResources().getIdentifier( stoneOldtPosition, "id", getPackageName() );
+                        ImageView oldCellImage = findViewById( oldCellID );
+                        oldCellImage.setTag( null );
                         if(getStoneFinishCount( currentPlayer ) == 7)//all stones finished
                         {
                             //state the winner and stop the game
-
+                            // custom dialog
+                            final Dialog dialog = new Dialog(this);
+                            dialog.setContentView(R.layout.win_dialog);
+                            Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                            // if button is clicked, close the custom dialog
+                            dialogButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                   finish();//close the app
+                                   System.exit( 0 );
+                                }
+                            });
+                            dialog.show();
                         }
                         //swipe the dice to the left (black) or right (white)
                         if (currentPlayer == "black") swapTo( "white" );
@@ -609,23 +627,6 @@ public class MainActivity extends AppCompatActivity {
             return whiteStoneFinishCount;
 
     }
-
-    //check if there is at least one available move for the player
-    public boolean availableMove(String player, int diceValue )
-    {
-        if(player == "black")
-        {
-            //check if any stone can be moved base on the dice value
-            //check if all the out stones are either on the board or finished the rout
-           //check the false moves rather than the true
-        }
-        else
-        {
-
-        }
-        return true;
-    }
-
 
     public void addStoneAt(String player, int x, int y, String tag, String ID)
     {
