@@ -13,6 +13,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -458,7 +459,10 @@ public class MainActivity extends AppCompatActivity {
                             // custom dialog
                             final Dialog dialog = new Dialog(this);
                             dialog.setContentView(R.layout.win_dialog);
+
                             Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+                            TextView text = (TextView) dialog.findViewById( R.id.text );
+                            text.setText( "Congratulation!!!\n" + currentPlayer + " wins!!" );
                             // if button is clicked, close the custom dialog
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
