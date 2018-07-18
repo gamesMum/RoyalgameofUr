@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
             opponentLayout = (LinearLayout)findViewById( R.id.black_layout );
         }
         ////////////////////////////////////////////////////////
-        if(diceValue == 0 || !availableMove(currentPlayer, diceValue))//swap to the other player
+        if(diceValue == 0 || numberOfMoves(currentPlayer, diceValue)==0)//swap to the other player
         {
             //swap the dice to the left (black) or right (white)
             if (currentPlayer == "black") swapTo( "white" );
@@ -257,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
+            Log.v(CONTEXT, "you have " + numberOfMoves(currentPlayer, diceValue) + "number of moves");
                 //if the dice value is not 0 and there is available move
                 ArrayList<String> currentRout;
                 LinearLayout currentLayout;
@@ -699,5 +700,86 @@ public class MainActivity extends AppCompatActivity {
             stone.setOnClickListener( whiteStoneClickListener );
         }
 
+    }
+
+    public int numberOfMoves(String player, int diceValue) {
+        int movesNumber = 0;
+        int startFromHere = 0;
+        if (player == "black") {
+            //check each stone position
+            for (int i = 0; i < STONESNUM; i++) {
+                String blackImageIdUrl = "black_" + i;
+
+                int blackImageId = getResources().getIdentifier( blackImageIdUrl, "id", getPackageName() );
+                ImageView blackStone = findViewById( blackImageId );
+
+                if (blackStone.getTag() == null) {
+                    startFromHere = -1;
+                } else//if the stone is on the board
+                {
+                    String blackStoneCurrentCell = blackStone.getTag().toString();
+                    for (String cellId : rout.getBlackRout()) {
+                        //start counting from this id
+                        if (cellId.equals( blackStoneCurrentCell )) startFromHere = rout.getBlackRout().indexOf( cellId );
+
+                    }
+
+                }
+                //add the dice value to the current place of
+                int nextRoutIndex = startFromHere + diceValue;
+                if (nextRoutIndex <= routSize) {
+                    String nextCell = rout.getBlackRout().get( nextRoutIndex );
+                    int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
+                    ImageView nextCellImage = findViewById( nextCellIDName );
+                    if (nextCellImage.getTag() == null)//it is free
+                    {
+                        movesNumber++;//one available move
+                    } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'w') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
+                    {
+                        movesNumber++;//you got another move
+                    }
+                }
+            }
+        }
+        else
+            {
+                //check each stone position
+                for (int i = 0; i < STONESNUM; i++) {
+                    String blackImageIdUrl = "white_" + i;
+
+                    int blackImageId = getResources().getIdentifier( blackImageIdUrl, "id", getPackageName() );
+                    ImageView blackStone = findViewById( blackImageId );
+                    if( blackStone.getTag() == null)
+                    {
+                        startFromHere = -1;
+                    }
+
+                    else//if the stone is on the board
+                    {
+                        String blackStoneCurrentCell = blackStone.getTag().toString();
+                        for (String cellId : rout.getBlackRout()) {
+                            //start counting from this id
+                            if (cellId.equals( blackStoneCurrentCell ))
+                                startFromHere = rout.getBlackRout().indexOf( cellId );
+
+                        }
+
+                    }
+
+                    //add the dice value to the current place of
+                    int nextRoutIndex = startFromHere + diceValue;
+                    String nextCell = rout.getBlackRout().get( nextRoutIndex );
+                    int nextCellIDName = getResources().getIdentifier( nextCell, "id", getPackageName() );
+                    ImageView nextCellImage = findViewById( nextCellIDName );
+                    if (nextCellImage.getTag() == null)//it is free
+                    {
+                        movesNumber++;//one available move
+                    } else if ((nextCellImage.getTag() != null && nextCellImage.getTag().toString().charAt( 0 ) == 'b') && !CheckSpeciLCell( nextCell ))//if the cell has enemy stone and it is not protected
+                    {
+                        movesNumber++;//you got another move
+                    }
+                }
+            }
+            return movesNumber;
     }
 }
