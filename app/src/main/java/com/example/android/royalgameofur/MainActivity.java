@@ -261,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
+
             Log.v(CONTEXT, "you have " + numberOfMoves(currentPlayer, diceValue) + "number of moves");
                 //if the dice value is not 0 and there is available move
                 ArrayList<String> currentRout;
@@ -323,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText( getApplicationContext(), "it is busy!", Toast.LENGTH_SHORT ).show();
 
                     }
-
+                    //TODO: fix images to fit all screen sizes
                     //TODO: play with computer
                     //TODO: change the target cell image to colored one
                     // TEXTVIEW
