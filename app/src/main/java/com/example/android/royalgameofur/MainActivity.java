@@ -1,7 +1,6 @@
 package com.example.android.royalgameofur;
 
 import android.app.Dialog;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView whiteStone;
     private ImageView dice;
     private int diceValue;
+    int boardCellImgWidth;
+    int boarderCellImgHeight;
     private final boolean YOU_WON = true;
     private RelativeLayout.LayoutParams layoutParams;
     private RelativeLayout.LayoutParams layoutParams2;
@@ -84,11 +85,17 @@ public class MainActivity extends AppCompatActivity {
         //restore GridView
         boardLayout.removeAllViews();
 
-        layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
-        layoutParams2 = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
+        layoutParams = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
+        layoutParams2 = new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT ); // or wrap_content
+
+
         //to prevent the image from changing size (this is for the stone created on the board)
-        layoutParams2.height = 40;
-        layoutParams2.width = 40;
+        layoutParams2.height = 100;//this should change depending on the dpi of the screen
+        layoutParams2.width = 100;
+        layoutParams.height = 200;
+        layoutParams.width = 200;
         //////////////////////////////////////////////////////////////////////////////////////
         //define the white and black stones onClickListener
         //This will be called for each player in thier turn and check for available moves
@@ -109,9 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         //set up the board on the screen
         drawBoard();
-
-        //find the views in xml file
-        //boardCells = new ImageView(  )
 
     }
 
@@ -146,17 +150,23 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLUMNS; j++) {
                 boardCell = new ImageView( this );
-
-                //cell_0_0, cell_0_1, cell_0_2, etc...
+               //cell_0_0, cell_0_1, cell_0_2, etc...
                 String imageResourceIdUrl = "drawable/" + "image_cell_" + i + "_" + j;
                 int imageKey = getResources().getIdentifier( imageResourceIdUrl, "drawable", getPackageName() );
 
                 boardCell.setImageResource( imageKey );
-                boardCell.setLayoutParams( new FrameLayout.LayoutParams( 100, 100 ) );
-                GridLayout.Spec rowSpan = GridLayout.spec( GridLayout.UNDEFINED, 1 );
-                GridLayout.Spec colspan = GridLayout.spec( GridLayout.UNDEFINED, 1 );
-                GridLayout.LayoutParams gridParam = new GridLayout.LayoutParams( rowSpan, colspan );
-                boardLayout.addView( boardCell, gridParam );
+                //boardCell.setScaleType( ImageView.ScaleType.CENTER_CROP);
+
+                boardCell.setLayoutParams( new FrameLayout.LayoutParams(200, 200 ) );
+                GridLayout.LayoutParams celLayoutParameter = new GridLayout.LayoutParams(  );
+                int  cellMargin = (int)getResources().getDimension( R.dimen.cell_margin );
+                celLayoutParameter.setMargins(10, 10, 10, 10  );
+                //GridLayout.Spec rowSpan = GridLayout.spec( GridLayout.UNDEFINED, 1 );
+                //GridLayout.Spec colspan = GridLayout.spec( GridLayout.UNDEFINED, 1 );
+                //GridLayout.LayoutParams gridParam = new GridLayout.LayoutParams( rowSpan, colspan );
+
+
+                boardLayout.addView( boardCell, celLayoutParameter);
                 //generate Id for each ImageView
                 String imageIdUrl = "cell_" + i + "_" + j;
                 int imageId = getResources().getIdentifier( imageIdUrl, "id", getPackageName() );
@@ -177,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
             //add bottom padding
             blackStone.setPadding( 16, 0, 0, 16 );
-            blackLayout.addView( blackStone);
+            blackLayout.addView( blackStone, layoutParams2);
 
             //attach the onClickListener to each image cell
             blackStone.setOnClickListener( blackStoneClickListener );
@@ -195,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             whiteStone.setImageResource( R.drawable.white );
             //add bottom padding
             whiteStone.setPadding( 0, 0, 16, 16 );
-            whiteLayout.addView( whiteStone);
+            whiteLayout.addView( whiteStone, layoutParams2);
 
             //attach the onClickListener to each image cell
             whiteStone.setOnClickListener( whiteStoneClickListener );
@@ -238,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
         //get the stone ID to pass it to the new added stone
         int stoneId = stone.getId();
         String stoneIDNameLong  = getResources().getResourceName( stoneId );
+        //take just the origional ID name
         String stoneIDName = stoneIDNameLong.substring( stoneIDNameLong.indexOf( "/" ) + 1 );
         String opponent = null;
         LinearLayout opponentLayout = null;
@@ -263,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
         else {
 
             Log.v(CONTEXT, "you have " + numberOfMoves(currentPlayer, diceValue) + "number of moves");
+            Log.v(CONTEXT, "the image width" + boardCellImgWidth);
                 //if the dice value is not 0 and there is available move
                 ArrayList<String> currentRout;
                 LinearLayout currentLayout;
@@ -295,9 +307,15 @@ public class MainActivity extends AppCompatActivity {
                         int posY = cellLocation[1];
                         //change the tag for the cell (black or white)
                         targetCellImage.setTag( stoneIDName );
-                        //
+                        //get the current size of the cell imageView
+                        boardCellImgWidth = targetCellImage.getWidth();
+                        boarderCellImgHeight = targetCellImage.getHeight();
+                        //calculate the space to shift the stones X and Y
+                        int shiftX = boardCellImgWidth/3;
+                        int shiftY = boarderCellImgHeight;
                         //add new stone on the board representing the removed stone
-                        addStoneAt( currentPlayer, posX, posY, targetCellIDName, stoneIDName );
+                        addStoneAt( currentPlayer, posX+shiftX ,
+                                posY-shiftY, targetCellIDName, stoneIDName );
                         stoneInPlusOne( currentPlayer );//new stone added on the board
                         if (stone.getParent() != null) ((ViewGroup) stone.getParent()).removeView( stone );
                         //check if it is a special cell
@@ -327,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
                     //TODO: fix images to fit all screen sizes
                     //TODO: play with computer
                     //TODO: change the target cell image to colored one
+                    //TODO: canclee screen rotation
                     // TEXTVIEW
 
 
@@ -359,11 +378,17 @@ public class MainActivity extends AppCompatActivity {
                             targetCellImage.setTag( stoneIDName );
                             //set the stone tag to the Id of the current cell
                             stone.setTag( targetCellIDName );
+                            //get the current size of the cell imageView
+                            boardCellImgWidth = targetCellImage.getWidth();
+                            boarderCellImgHeight = targetCellImage.getHeight();
+                            //calculate the space to shift the stones X and Y
+                            int shiftX = boardCellImgWidth/3;
+                            int shiftY = boarderCellImgHeight;
                             // move the stone to that cell
                            /* layoutParams2.removeRule( RelativeLayout.ALIGN_PARENT_RIGHT );
                             layoutParams2.removeRule( RelativeLayout.ALIGN_PARENT_END );*/
-                            stone.setX( posX + 35 );
-                            stone.setY( posY - 60 );
+                            stone.setX( posX + shiftX);
+                            stone.setY( posY - shiftY );//
                             // //restore the old position so it is free
                             int oldCellID = getResources().getIdentifier( stoneOldtPosition, "id", getPackageName() );
                             ImageView oldCellImage = findViewById( oldCellID );
@@ -429,9 +454,14 @@ public class MainActivity extends AppCompatActivity {
                                     targetCellImage.setTag( stoneIDName );
                                     //set the stone tag to the Id of the current cell
                                     stone.setTag( targetCellIDName );
-
-                                    stone.setX( posX + 35 );
-                                    stone.setY( posY - 60 );
+                                    //get the current size of the cell imageView
+                                    boardCellImgWidth = targetCellImage.getWidth();
+                                    boarderCellImgHeight = targetCellImage.getHeight();
+                                    //calculate the space to shift the stones X and Y
+                                    int shiftX = boardCellImgWidth/3;
+                                    int shiftY = boarderCellImgHeight;
+                                    stone.setX( posX + shiftX);
+                                    stone.setY( posY - shiftY ); //
                                     // //restore the old position so it is free
                                     int oldCellID = getResources().getIdentifier( stoneOldtPosition, "id", getPackageName() );
                                     ImageView oldCellImage = findViewById( oldCellID );
@@ -635,8 +665,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void addStoneAt(String player, int x, int y, String tag, String ID)
     {
-        int posX = x + 35;
-        int posY = y - 60;
+        int posX = x;
+        int posY = y;
         ImageView stone = new ImageView( this );
         if(player == "black")
         {
@@ -676,13 +706,13 @@ public class MainActivity extends AppCompatActivity {
         if(opponent == "black") {
             stone.setImageResource( R.drawable.black );
             stone.setPadding( 16, 0, 0, 16 );
-            opponentLayout.addView( stone );
+            opponentLayout.addView( stone , layoutParams2);
             stone.setOnClickListener( blackStoneClickListener );
         }
         else{
             stone.setImageResource( R.drawable.white );
             stone.setPadding( 0, 0, 16, 16 );
-            opponentLayout.addView( stone );
+            opponentLayout.addView( stone, layoutParams2);
             stone.setOnClickListener( whiteStoneClickListener );
         }
 
@@ -777,4 +807,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return movesNumber;
     }
+
+
+
 }
