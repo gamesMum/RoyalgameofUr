@@ -50,7 +50,7 @@ public class Rout {
         specialCells.add( "cell_0_2" );
         specialCells.add( "cell_3_1" );
         specialCells.add( "cell_6_0" );
-        specialCells.add( "cell_6_3" );
+        specialCells.add( "cell_6_2" );
     }
 
     public  ArrayList<String> getBlackRout() {
