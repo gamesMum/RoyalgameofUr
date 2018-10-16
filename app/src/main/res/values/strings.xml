@@ -2,4 +2,6 @@
     <string name="app_name">Royal game of Ur</string>
     <string name="dismiss">Dismiss</string>
     <string name="alert">You Win</string>
+    <string name="one_player">One Player</string>
+    <string name="two_player">Two Players</string>
 </resources>

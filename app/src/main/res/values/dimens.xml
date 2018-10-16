@@ -3,4 +3,11 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="cell_margin">10dp</dimen>
+    <dimen name="button_width">256dp</dimen>
+    <dimen name="button_height">64dp</dimen>
+    <dimen name="button_margin">52dp</dimen>
+    <dimen name="linear_layout_padding">16dp</dimen>
+    <dimen name="stoneImageHeight">150dp</dimen>
+    <dimen name="stoneImageWidth">175dp</dimen>
+    <dimen name="cellDimentions">175dp</dimen>
 </resources>
